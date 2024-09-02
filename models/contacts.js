@@ -1,4 +1,4 @@
-import fs from "fs/promise"
+import fs from "fs/promises"
 import path from "path"
 import { nanoid } from "nanoid"
 import {fileURLToPath} from "url"
@@ -6,7 +6,7 @@ import {fileURLToPath} from "url"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const contactsPath = path.join(__dirname, "models", "contacts.json")
+const contactsPath = path.join(__dirname, "contacts.json")
 
 const listContacts = async () => {
   const data = await fs.readFile(contactsPath)
@@ -62,10 +62,4 @@ const updateContact = async (contactId, {name, email, phone}) => {
   return contacts[index]
 }
 
-module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-}
+export { listContacts, getContactById, removeContact, addContact, updateContact }
