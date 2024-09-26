@@ -1,7 +1,7 @@
 import express from 'express'
 import logger from "morgan"
 import cors from "cors"
-import router from './routes/api/contacts.js'
+import router from './routes/api/contactsRouter.js'
 
 const app = express()
 
@@ -13,10 +13,12 @@ app.use(express.json())
 
 app.use('/api/contacts', router)
 
+// 404 Error Handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found' })
 })
 
+// General Error Handler
 app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message })
 })

@@ -1,31 +1,11 @@
 import express from "express"
-import { listContacts, getContactById, removeContact, addContact, updateContact } from "../../models/contacts.js"
-import schema from "../../validation/validation.js"
+import { getAllContacts, getContactById } from "../../controllers/contactsController.js"
 
 const router = express.Router()
 
-router.get('/', async (req, res, next) => {
-  try {
-    const contacts = await listContacts()
-    console.log(contacts)
-    res.json(contacts)
-  } catch (error) {
-    next(error)
-  }
-})
+router.get('/', getAllContacts)
 
-router.get('/:contactId', async (req, res, next) => {
-  try {
-    const { contactId } = req.params
-    const contact = await getContactById(contactId)
-    if (!contact) {
-      return res.status(404).json({ message: 'Not found' })
-    }
-    res.json(contact)
-  } catch (error) {
-    next(error)
-  }
-})
+router.get('/:contactId', getContactById)
 
 router.post('/', async (req, res, next) => {
   try {
