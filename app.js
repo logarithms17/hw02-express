@@ -1,7 +1,9 @@
 import express from 'express'
 import logger from "morgan"
 import cors from "cors"
-import router from './routes/api/contactsRouter.js'
+
+import { router as contactsRouter } from './routes/api/contactsRouter.js'
+import {router as usersRouter } from './routes/api/usersRouter.js'
 
 const app = express()
 
@@ -11,7 +13,8 @@ app.use(logger(formatsLogger))
 app.use(cors())
 app.use(express.json())
 
-app.use('/api/contacts', router)
+app.use('/api/contacts', contactsRouter)
+app.use('/api/users', usersRouter)
 
 // 404 Error Handler
 app.use((req, res) => {

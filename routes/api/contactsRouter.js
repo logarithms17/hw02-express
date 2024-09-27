@@ -13,4 +13,4 @@ router.delete('/:contactId', deleteContact)
 
 router.put('/:contactId', updateContact)
 
-export default router
+export {router}

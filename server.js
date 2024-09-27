@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 dotenv.config(); //gaining access to the .env file
 
 const { DB_HOST } = process.env 
-console.log(DB_HOST)
 
 mongoose //connects mongodb to vscode
   .connect(DB_HOST)
