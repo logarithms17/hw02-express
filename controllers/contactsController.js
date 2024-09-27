@@ -14,12 +14,14 @@ export const getAllContacts = async (_req, res, next) => {
 
 //GETTING SPECIFIC CONTACT BY ID
 export const getContactById = async (req, res, next) => {
+    console.log(req.params.contactId)
     try {
         const contact = await Contact.findById(req.params.contactId);
+        
         if (!contact) {
             return res.status(404).json({ message: 'Not found' });
         }
-        res.result(200).json(contact);
+        res.status(200).json(contact);
     } catch (error) {
         next(error)
     }
@@ -29,14 +31,14 @@ export const getContactById = async (req, res, next) => {
 
 export const addContact = async (req, res, next) => {
 
-    const { error } =contactValidation.validate(req.body) //this will validate if the input data is the same as required in our Joi validation
+    const { error } = contactValidation.validate(req.body) //this will validate if the input data is the same as required in our Joi validation
     
     if (error) {
         return res.status(400).json({ message: "Missing required field" });
     }
     
     try {
-        const result = Contact.create(req.body) //this will create the data and save to Contact collection Database
+        const result = await Contact.create(req.body) //this will create the data and save to Contact collection Database
         res.status(201).json(result);
     } catch (error) {
         next(error)
@@ -65,7 +67,7 @@ export const updateContact = async (req, res, next) => {
     }
     
     try {
-        const result = await Contact.findByIdAndUpdate(req.params.contactId, req.body, { new: true });
+        const result = await Contact.findByIdAndUpdate(req.params.contactId, req.body);
         if (!result) {
             return res.status(404).json({ message: 'Not found' });
         }

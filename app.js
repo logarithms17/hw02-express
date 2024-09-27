@@ -20,6 +20,7 @@ app.use((req, res) => {
 
 // General Error Handler
 app.use((err, req, res, next) => {
+  console.log(err.message)
   res.status(500).json({ message: err.message })
 })
 
