@@ -86,7 +86,14 @@ export const loginUser = async (req, res, next) => {
 
         await User.findByIdAndUpdate(existingUser._id, { token })
 
-        res.status(200).json({ existingUser });
+        res.status(200).json({
+      user: {
+        _id: existingUser._id,
+        email: existingUser.email,
+        subscription: existingUser.subscription,
+      },
+      token,
+    });
     } catch (error) {
         next(error);
     }
