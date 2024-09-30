@@ -7,14 +7,16 @@ import { Jimp } from "jimp";
 import path from "path"
 import fs from "fs/promises";
 import gravatar from "gravatar";
+import sendEmail from "../helpers/sendEmail.js";
+import { nanoid } from "nanoid";
+
 
 const {SECRET_KEY} = process.env
 
 export const signupUser = async (req, res, next) => {
-    try{
+    try {
+        console.log("entered try")
     const { password, email } = req.body;
-    console.log(password)
-    console.log(email)
 
     const { error } = userValidation.validate(req.body);
 
@@ -33,17 +35,35 @@ export const signupUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10); //level of security
         const hashedPassword = await bcrypt.hash(password, salt);
         
-        //CREATE DEFAULT AVATAR USING GRAVATR
-        
-        const avatarUrl = gravatar.url(email, { protocol: "http" })
+    //CREATE DEFAULT AVATAR USING GRAVATR
+    
+    const avatarUrl = gravatar.url(email, { protocol: "http" })
+    
+        //ADD VERIFY AND VERIFICATION TOKEN
 
+    const verificationToken = nanoid()
+    console.log(verificationToken)
+        
+    console.log(email)
+
+    await sendEmail({
+        to: email, // recipient
+        subject: "Verify your email", // subject
+        html: `<a href="http://localhost:3000/api/users/verify/${verificationToken}">Click here to verify your email</a>`, // html body
+    })
+
+    console.log("Sent an email")
     //CREATE NEW USER
 
     const newUser = await User.create({
         email,
         password: hashedPassword,
-        avatarUrl
+        avatarUrl,
+        verificationToken,
+        //no need to add verify because it is already default false
     })
+        
+        console.log(newUser)
     
     res.status(201).json(newUser);
     } catch (error) {
@@ -197,3 +217,28 @@ export const uploadAvatar = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+//EMAIL VERIFICATION
+
+export const verifyEmail = async (req, res) => {
+    const { verificationToken } = req.params //getting the token from the params
+
+    try {
+        const user = await User.findOne({ verificationToken }); //find the user with the specific verification token
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await User.findByIdAndUpdate(user._id, { //find the user and update the verify status to true
+            verify: true,
+            verificationToken: null,
+        });
+
+        res.json({ message: "Verification successful" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+

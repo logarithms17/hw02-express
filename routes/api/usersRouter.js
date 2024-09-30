@@ -1,5 +1,5 @@
 import express from "express";
-import { signupUser,loginUser, logoutUser, getCurrentUser, updateUserSubscription, uploadAvatar } from "../../controllers/usersController.js";
+import { signupUser,loginUser, logoutUser, getCurrentUser, updateUserSubscription, uploadAvatar, verifyEmail } from "../../controllers/usersController.js";
 import { authenticateToken } from "../../middlewares/auth.js";
 import { upload } from "../../middlewares/upload.js";
 
@@ -26,5 +26,9 @@ router.patch("/", authenticateToken, updateUserSubscription);
 //UPLOAD AVATAR
 
 router.patch("/avatars", authenticateToken, upload.single("avatar"), uploadAvatar);
+
+//EMAIL VERIFICATION USING NODEMAILER
+
+router.get("/verify/:verificationToken", verifyEmail);
 
 export { router }
