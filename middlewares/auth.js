@@ -19,8 +19,6 @@ export const authenticateToken = async (req, res, next) => {
 
         const user = await User.findById(userId);
 
-        console.log(user)
-
         if (!user || !user.token) {
             return res.status(401).json({ message: "Not Authorized" });
         }

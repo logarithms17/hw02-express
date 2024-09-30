@@ -3,6 +3,10 @@ import { userValidation, subscriptionValidation } from "../validation/validation
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import "dotenv/config";
+import { Jimp } from "jimp";
+import path from "path"
+import fs from "fs/promises";
+import gravatar from "gravatar";
 
 const {SECRET_KEY} = process.env
 
@@ -27,13 +31,18 @@ export const signupUser = async (req, res, next) => {
 
     //HASH THE PASSWORD
     const salt = await bcrypt.genSalt(10); //level of security
-    const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        
+        //CREATE DEFAULT AVATAR USING GRAVATR
+        
+        const avatarUrl = gravatar.url(email, { protocol: "http" })
 
     //CREATE NEW USER
 
     const newUser = await User.create({
         email,
         password: hashedPassword,
+        avatarUrl
     })
     
     res.status(201).json(newUser);
@@ -128,5 +137,56 @@ export const updateUserSubscription = async (req, res, next) => {
         res.status(200).json(user);
     } catch (error) {
         next(error);
+    }
+}
+
+//UPLOAD AVATAR
+
+export const uploadAvatar = async (req, res) => {
+    console.log("Entered userController for upload avatar")
+    console.log(req.file)
+    try {
+        const { _id } = req.user;
+        console.log("User ID:", _id); // Debug log
+
+        //IF NO FILE IS UPLOADED
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
+        const { path: oldPath, originalname } = req.file; //accessing the initial storage path of the uploaded file
+
+
+        //resize the image file using JIMP
+
+        await Jimp.read(oldPath)
+        .then((image) => {
+            image.resize({ w: 250, h: 250 }).write(oldPath);
+        })
+        .catch((error) => console.log(error));    
+
+        //create new file name
+
+        const extension = path.extname(originalname)
+
+        const newFileName = `${_id}${extension}`
+        
+        const newPath = path.join("public", "avatars", newFileName)
+
+        console.log(`New Path: ${newPath}`)
+
+        await fs.rename(oldPath, newPath)
+
+        const avatarUrl = path.join("avatars", newFileName)
+        console.log(`avatarURL: ${avatarUrl}`)
+
+        await User.findByIdAndUpdate(_id, { avatarUrl });
+        console.log("Avatar URL saved to the database"); // Debug log
+
+        res.status(200).json({ avatarUrl });
+
+    } catch (error) {
+        console.error("Error in updateAvatar:", error); // Debug log
+        res.status(500).json({ message: error.message });
     }
 }

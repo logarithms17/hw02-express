@@ -15,9 +15,12 @@ app.use(express.json())
 
 app.use('/api/contacts', contactsRouter)
 app.use('/api/users', usersRouter)
+app.use(express.static("public")) //creates a static file, which when we are inside the file when we go to localhost:3000/
+//so if we go to files from avatar we can use localhost:3000/public/avatars
 
 // 404 Error Handler
 app.use((req, res) => {
+  console.log("404 Error Handled")
   res.status(404).json({ message: 'Not found' })
 })
 
